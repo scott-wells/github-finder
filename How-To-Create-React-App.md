@@ -227,3 +227,114 @@ export class Navbar extends Component {
 ```
 
 - Now, if you pass a prop that doesn't match the correct type required for your component, React with show an error in the console.
+
+## Create a UserItem component
+
+1. Make a new folder in the "components" folder called "users". Make a new file named "UserItem.js".
+
+2. Inside "UserItem.js", type out a class component.
+
+```
+import React, { Component } from 'react'
+
+class UserItem extends Component {
+    render() {
+        return (
+            <div>
+                User Item
+            </div>
+        )
+    }
+}
+
+export default UserItem
+```
+
+3. Add `import UserItem from "./components/users/UserItem";` to the imports section of "App.js".
+
+4. Add `<UserItem />` in the `return()` section below.
+
+```
+import React, { Component } from "react";
+import Navbar from "./components/layout/Navbar";
+import UserItem from "./components/users/UserItem";
+import "./App.css";
+
+class App extends Component {
+  render() {
+    return (
+      <div className='App'>
+        <Navbar />
+        <UserItem />
+      </div>
+    );
+  }
+}
+
+export default App;
+```
+
+## Add State to Component
+
+1. In "UserItem.js", add a `state` object for our first user item. (You can also use a constructor. Inside the constructor, include `super();`, otherwise you will get an error.Then dd a `this.state` object.)
+
+```
+class UserItem extends Component {
+  state = {
+    id: 'id',
+    login: 'mojombo',
+    avatar_url: 'https://avatars0.githubusercontent.com/u/1?v=4',
+    html_url: 'https://github.com/mojombo'
+  };
+```
+
+2. Now you can use this state in the rendered component. Add some styles to the component `<div>` and put an `<img>` inside it.
+
+3. Also, add the username as an `<h3>`and a link to the profile below the `<img>` inside another `<div>`.
+
+```
+render() {
+  return (
+    <div className='card text-center'>
+      <img
+        src={this.state.avatar_url}
+        alt='avatar url'
+        className='round-img'
+        style={{ width: "60px" }}
+      />
+      <h3>{this.state.login}</h3>
+      <div>
+        <a href={this.state.html_url} className='btn btn-dark btn-sm my-1'>
+          More
+        </a>
+      </div>
+    </div>
+  );
+}
+
+```
+
+4. You can destructure your state object to make your code a little cleaner and less verbose. Destructure you state object right below the `render()`. Now you can include object keys without having to right `{this.state}` every time.
+
+```
+render() {
+  const { login, avatar_url, html_url } = this.state;
+
+  return (
+    <div className='card text-center'>
+      <img
+        src={avatar_url}
+        alt='avatar url'
+        className='round-img'
+        style={{ width: "60px" }}
+      />
+      <h3>{login}</h3>
+      <div>
+        <a href={html_url} className='btn btn-dark btn-sm my-1'>
+          More
+        </a>
+      </div>
+    </div>
+  );
+}
+```
