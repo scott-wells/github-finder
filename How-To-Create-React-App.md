@@ -515,3 +515,227 @@ UserItem.propTypes = {
   user: PropTypes.object.isRequired
 };
 ```
+
+## Fetch Data from an API
+
+`componentDidMount()` is a lifecycle method that performs a function when the component 'mounts' in the browser.
+
+Axios is a great Express.js library that makes RESTful APIs much easier. We will use it with `componentDidMount()`.
+
+1. In App.js, add `componentDidMount()` above the `render()`. Inside `componentDidMount()`, let's make a simple GET request for the github API, and then log the response to the console. (`axios.get()` returns a Promise). You should now see an array of objects in the browser console.
+
+```
+componentDidMount() {
+    axios
+      .get("https://api.github.com/users")
+      .then((res) => console.log(res.data));
+  }
+```
+
+2. But off course, we can refactor this using 'Async/Await' for easier to read code. Then we no longer need the Promise or chained methods.
+
+```
+async componentDidMount() {
+    this.setState({ loading: true });
+
+    const res = await axios.get("https://api.github.com/users");
+
+    console.log(res.data);
+  }
+```
+
+## Make API Data Globally Available in the App
+
+1. In "App.js", give the app some intial, default state. `users: []` is an empty array that will be filled with all the users from the API. We are also going to make a 'loading' icon that will turn on or off depending on whether the data is loaded yet. `loading: false`.
+
+```
+state = {
+    users: [],
+    loading: false,
+  };
+```
+
+Instead of changing a object of state directly, React uses `this.setState()`.
+
+2. In `componentDidMount()`, switch loading to true. `this.setState({ loading: true });` Then replace the `console.log()` with `this.setState({ users: res.data, loading: false });`
+
+So, 'loading' is changed to 'true'. We send a 'get request' to the api and 'await' a 'response' of data. We then set the state 'users' array as the data we just received, and change 'loading' back to 'false'.
+
+```
+async componentDidMount() {
+    this.setState({ loading: true });
+
+    const res = await axios.get("https://api.github.com/users");
+
+    this.setState({ users: res.data, loading: false });
+  }
+```
+
+3. Now, pass the props down to 'Users.js', which in turn will pass each individual user to 'UserItem.js'. `{this.props.users.map((user)`
+
+```
+render() {
+    return (
+      <div style={userStyle}>
+        {this.props.users.map((user) => (
+          <UserItem key={user.id} user={user} />
+        ))}
+      </div>
+    );
+  }
+}
+```
+
+## Add a Loading "Spinner" Component
+
+1. This is a quick one. Make a new file called 'Spinner.js' in 'layout'. Import your graphic. Make a functional component.
+
+```
+import React, { Fragment } from "react";
+import spinner from "./spinner.gif";
+
+export const Spinner = () => {
+  return (
+    <Fragment>
+      <img
+        src={spinner}
+        alt='Loading...'
+        style={{ width: "200px", margin: "auto", display: "block" }}
+      />
+    </Fragment>
+  );
+};
+
+export default Spinner;
+```
+
+2. Import the 'Spinner' component into 'Users.js'. And while we're at it, deconstruct the props out of the state. Make an `if/else` statement. If loading is true, pass the `<Spinner/>`. If loading is false, display all the `<UserItem/>` from the api. It should look like this:
+
+```
+import React, { Component } from "react";
+import UserItem from "./UserItem";
+import Spinner from "../layout/Spinner";
+
+const Users = ({ users, loading }) => {
+  if (loading) {
+    return <Spinner />;
+  } else {
+    return (
+      <div style={userStyle}>
+        {users.map((user) => (
+          <UserItem key={user.id} user={user} />
+        ))}
+      </div>
+    );
+  }
+};
+
+const userStyle = {
+  display: "grid",
+  gridTemplateColumns: "repeat(3, 1fr)",
+  gridGap: "1rem",
+};
+
+export default Users;
+```
+
+It's tricky to know where to put objects like this. You could put the `<Spinner/>` in 'App.js' and it would still work. But it goes here, because the `<Users/>` component is the 'box' that controls whether we display a `<Spinner/>` or a list of `<UserItem/>`.
+
+3. Don't forget to add 'PropTypes' for each prop in 'Users.js'.
+
+```
+Users.propTypes = {
+  users: PropTypes.array.isRequired,
+  loading: PropTypes.bool.isRequired,
+};
+```
+
+## Store a Global Variable as .env.local
+
+Many applications and services use IDs and Secrets to access their APIs - Firebase, Sendgrid, AWS, etc. In this case, Github also gives you an id and secret to access their api. However, ids and secrets are not to be shared publicly.
+
+You can store these as global variables in an `.env.local` file. Make sure that any `.env.local` is included in your `.gitignore` if you are posting this to a repository.
+
+1. Register you app through Github in order to get a 'Client Id' and 'Client Secret'. Create a new file at the application root (i.e. not inside any folder) named '.env.local'.
+
+2. .env variables use all caps, and in React, they _must_ start with `REACT_APP_`. We need one for the id, and one for the secret.
+
+```
+REACT_APP_GITHUB_CLIENT_ID='yourClientId'
+REACT_APP_GITHUB_CLIENT_SECRET='yourClientSecret'
+```
+
+Now in 'App.js', instead of sending random requests to Github's servers, we can authenticate our requests using the id and secret, and therefore bypass the 50 request limit. This is all done in the URL.
+
+3. A `?` in the URL sets the first parameter of our `get` request. An `&` sets the second parameter. We will use template literals to set our variables. Make sure to use backticks in your `get()`.
+
+```
+const res = await axios.get(
+      `https://api.github.com/users?client_id=${process.env.REACT_APP_GITHUB_CLIENT_ID}&client_secret${process.env.REACT_APP_GITHUB_CLIENT_SECRET}`
+    );
+```
+
+You can double check things with a `console.log(process.env.REACT_APP_GITHUB_CLIENT_ID);`
+
+## Add a Search Component
+
+1. Make a class component called "Search.js" in the "users" folder. Give it a form field and a submit button.
+
+2. The form field needs a default value (or default state). Give it an empty string.
+
+3. Set the form input value to the component state you just added. `value={this.state.text}`.
+
+4. Step 3 will result in a console error. You need to add an `onChange` attribute to the component, as well. `onChange={this.onChange}`. (You can call the method whatever you want.)
+
+5. Above the `render()`, write out the method for the `onChange` event.
+
+```
+export class Search extends Component {
+  state = {
+    text: "",
+  };
+
+  onChange = (e) => {
+    this.setState({ text: e.target.value });
+  };
+
+  render() {
+    return (
+      <div>
+        <form className='form'>
+          <input
+            type='text'
+            name='text'
+            placeholder='Search Users...'
+            value={this.state.text}
+            onChange={this.onChange}
+          />
+          <input
+            type='submit'
+            value='Search'
+            className='btn btn-dark btn-block'
+          />
+        </form>
+      </div>
+    );
+  }
+}
+```
+
+## Search Submit Button and Passing Up Props
+
+1. First, let's add a method to our form to submit the input.
+   `<form onSubmit={this.onSubmit} className='form'>`
+
+2. Now, just like `onChange()`, make an `onSubmit()`. `console.log()` to test it.
+
+```
+onSubmit = (e) => {
+    e.preventDefault();
+    console.log(this.state.text);
+  };
+```
+
+(Quick aside, when a form submits, it refers to the global `this`, but we need to bind it to the `(e)`. Our arrow function does this for us, but if we wrote our method the traditional way - `onSubmit(e) {}` - we would need to add `.bind(this)` on our form attribute. `<form onSubmit={this.onSubmit.bind(this)}/>`)
+
+3. We need to add an app level method that we pass down via props to the `<Search/>` component called `.searchUsers()`.
