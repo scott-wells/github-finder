@@ -11,7 +11,7 @@ const RepoItem = ({ repo }) => {
   );
 };
 
-RepoItem.propType = {
+RepoItem.propTypes = {
   repo: PropTypes.object.isRequired,
 };
 

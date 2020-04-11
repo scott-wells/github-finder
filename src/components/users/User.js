@@ -1,39 +1,45 @@
 import React, { useEffect, Fragment } from "react";
+import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
+
 import Spinner from "../layout/Spinner";
 import Repos from "../repos/Repos";
-import PropTypes from "prop-types";
 
-const User = ({ user, getUserRepos, getUser, match, repos, loading }) => {
-  useEffect(() => {
-    // useEffect mimicks componentDidUpdate for functional components, among other uses
-    getUser(match.params.login); // matches a parameter in the URL - in this case, login
-    getUserRepos(match.params.login);
-    // eslint-disable-next-line
-  }, []); // empty array as a dependency stops a infinite loop, in this case
-
-  const {
+const User = ({
+  loading,
+  repos,
+  user: {
     name,
-    company,
     avatar_url,
     location,
     bio,
-    blog,
     login,
     html_url,
     followers,
     following,
-    public_repos,
     public_gists,
+    public_repos,
     hireable,
-  } = user; // these could all be destructured also, but it's more organized here like this
+    blog,
+    company,
+  },
+  getUser,
+  getUserRepos,
+  match: { params },
+}) => {
+  // useEffect mimicks componentDidUpdate for functional components, among other uses
+  useEffect(() => {
+    getUser(params.login); // matches a parameter in the URL - in this case, login
+    getUserRepos(params.login);
+    // eslint-disable-next-line
+  }, []); // empty array as a dependency stops a infinite loop, in this case
 
   if (loading) return <Spinner />;
 
   return (
     <Fragment>
       <Link to='/' className='btn btn-light'>
-        Back To Search
+        Back to Search
       </Link>
       Hireable:{" "}
       {hireable ? (
@@ -42,11 +48,11 @@ const User = ({ user, getUserRepos, getUser, match, repos, loading }) => {
         <i className='fas fa-times-circle text-danger' />
       )}
       <div className='card grid-2'>
-        <div className='all-center'>
+        <div className='all-centre'>
           <img
             src={avatar_url}
-            className='round-img'
             alt=''
+            className='round-img'
             style={{ width: "150px" }}
           />
           <h1>{name}</h1>
@@ -60,38 +66,40 @@ const User = ({ user, getUserRepos, getUser, match, repos, loading }) => {
             </Fragment>
           )}
           <a href={html_url} className='btn btn-dark my-1'>
-            Vist Github
+            Visit GitHub profile
           </a>
           <ul>
             <li>
               {login && (
                 <Fragment>
-                  <strong>Username: </strong> {login}
+                  <strong>Username: {login} </strong>
                 </Fragment>
               )}
             </li>
             <li>
               {company && (
                 <Fragment>
-                  <strong>Company: </strong> {company}
+                  <strong>Company: {company}</strong>
                 </Fragment>
               )}
             </li>
             <li>
               {blog && (
                 <Fragment>
-                  <strong>Website: </strong> {blog}
+                  <strong>
+                    Website: <a href={`https://${blog}`}>{blog}</a>{" "}
+                  </strong>
                 </Fragment>
               )}
             </li>
           </ul>
         </div>
       </div>
-      <div className='card text-center'>
+      <div className='car text-centre'>
         <div className='badge badge-primary'>Followers: {followers}</div>
         <div className='badge badge-success'>Following: {following}</div>
-        <div className='badge badge-light'>Public Repos: {public_repos}</div>
-        <div className='badge badge-dark'>Public Gists: {public_gists}</div>
+        <div className='badge badge-light'>Public repos: {public_repos}</div>
+        <div className='badge badge-dark'>Public gists: {public_gists}</div>
       </div>
       <Repos repos={repos} />
     </Fragment>
@@ -99,11 +107,10 @@ const User = ({ user, getUserRepos, getUser, match, repos, loading }) => {
 };
 
 User.propTypes = {
-  loading: PropTypes.bool,
+  loading: PropTypes.bool.isRequired,
   user: PropTypes.object.isRequired,
-  repos: PropTypes.array.isRequired,
   getUser: PropTypes.func.isRequired,
-  getUserRepos: PropTypes.func.isRequired,
+  repos: PropTypes.array.isRequired,
 };
 
 export default User;

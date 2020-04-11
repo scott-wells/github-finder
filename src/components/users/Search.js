@@ -1,31 +1,31 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
 
-const Search = ({ searchUsers, showClear, clearUsers, setAlert }) => {
-  // destructure props and methods like this
+// destructure props and methods like this
+const Search = ({ showClear, clearUsers, setAlert, searchUsers }) => {
   const [text, setText] = useState(""); // let's us use state in a functional component - text = initial state, setText = update state
-
-  // method captures the text input
-  const onChange = (e) => setText(e.target.value); // setText updates the state
 
   const onSubmit = (e) => {
     e.preventDefault(); // prevent form from refreshing page
     if (text === "") {
-      setAlert("Please enter something", "light"); // setAlert() lives in App.js
+      setAlert("Please enter something", "light");
     } else {
-      searchUsers(text); // searchUsers() lives in App.js
+      searchUsers(text);
       setText(""); // setText updates the state
     }
   };
 
+  // method captures the text input
+  const onChange = (e) => setText(e.target.value); // setText updates the state
+
   return (
     <div>
-      <form onSubmit={onSubmit} className='form'>
+      <form className='form' onSubmit={onSubmit}>
         <input
           type='text'
           name='text'
-          placeholder='Search Users...'
           value={text}
+          placeholder='Search Users...'
           onChange={onChange}
         />
         <input
@@ -34,7 +34,6 @@ const Search = ({ searchUsers, showClear, clearUsers, setAlert }) => {
           className='btn btn-dark btn-block'
         />
       </form>
-      {/* if prop showClear is true, the button shows */}
       {showClear && (
         <button className='btn btn-light btn-block' onClick={clearUsers}>
           Clear
