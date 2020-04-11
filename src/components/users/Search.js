@@ -10,6 +10,7 @@ export class Search extends Component {
     searchUsers: PropTypes.func.isRequired,
     clearUsers: PropTypes.func.isRequired,
     showClear: PropTypes.bool.isRequired,
+    setAlert: PropTypes.func.isRequired,
   };
 
   // method captures the text input
@@ -17,8 +18,12 @@ export class Search extends Component {
 
   onSubmit = (e) => {
     e.preventDefault();
-    this.props.searchUsers(this.state.text); // .searchUsers() will be a global method
-    this.setState({ text: "" });
+    if (this.state.text === "") {
+      this.props.setAlert("Please enter something", "light"); // setAlert() lives in App.js
+    } else {
+      this.props.searchUsers(this.state.text); // searchUsers() lives in App.js
+      this.setState({ text: "" });
+    }
   };
 
   render() {

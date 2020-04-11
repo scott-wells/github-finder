@@ -722,7 +722,7 @@ export class Search extends Component {
 }
 ```
 
-## Search Submit Button and Passing Up Props
+## Search Submit Button and Passing Up Props - Lecture 18 & 19
 
 1. First, let's add a method to our form to submit the input.
    `<form onSubmit={this.onSubmit} className='form'>`
@@ -739,3 +739,5 @@ onSubmit = (e) => {
 (Quick aside, when a form submits, it refers to the global `this`, but we need to bind it to the `(e)`. Our arrow function does this for us, but if we wrote our method the traditional way - `onSubmit(e) {}` - we would need to add `.bind(this)` on our form attribute. `<form onSubmit={this.onSubmit.bind(this)}/>`)
 
 3. We need to add an app level method that we pass down via props to the `<Search/>` component called `.searchUsers()`.
+
+.......... to be continued.
